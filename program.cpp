@@ -531,7 +531,7 @@ void process_interaction(){
                 }
                 load_file(fin,functions);
                 if(functions.count("main")){
-                    cerr<<"Warning: it is not allowed to use main function";
+                    cerr<<"Warning: it is not allowed to use main function"<<endl;
                 }
                 cout<<"File successfully read"<<endl;
                 continue;
@@ -550,6 +550,9 @@ void process_interaction(){
             remove_spaces_declaration(decl);
             string lamb_exp=cur.substr(pos+3);
             remove_spaces_lambda_expression(lamb_exp);
+            if(decl=="main"){
+                cerr<<"Warning: it is not allowed to use main function"<<endl;
+            }
             functions[decl]=lamb_exp;
         }
         catch(const char *error){
