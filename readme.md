@@ -58,26 +58,10 @@ You can apply **read** to expression to call input. Example:
 
 **(inc)read**
 
-If you enter
-
-**\a.\b.b**
-
-, you will get as result
-
-**\a.\b.(a)b**
-
-(you will not get exactly this expression, but they will be equivalent).
+If you enter **\a.\b.b**, you will get as result **\a.\b.(a)b** (you will not get exactly this expression, but they will be equivalent).
 
 You can enter function by their name. Example:
 
 **((\x.x)read)\a.\b.b**
 
-If you enter
-
-**inc**
-
-, you will get as result
-
-**\a.\b.(a)b**
-
-(you will not get exactly expression term, but they will be equivalent).
+If you enter **inc**, you will get as result **\a.\b.(a)b** (you will not get exactly expression term, but they will be equivalent).
