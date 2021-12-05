@@ -1,0 +1,40 @@
+# /\ ::= V | (/\)/\ | \V./\
+# V ::= [A-za-z0-9]+
+
+# Some binary logic functions
+tru ::= \t.\f.t
+fls ::= \t.\f.f
+test ::= \l.\m.\n.((l)m)n
+
+# Church numerals
+c0 ::= \s.\z.z
+c1 ::= \s.\z.(s)z
+c2 ::= \s.\z.(s)(s)z
+c3 ::= \s.\z.(s)(s)(s)z
+c4 ::= \s.\z.(s)(s)(s)(s)z
+c5 ::= \s.\z.(s)(s)(s)(s)(s)z
+c6 ::= \s.\z.(s)(s)(s)(s)(s)(s)z
+
+# Operations on church numerals
+inc ::= \n.\s.\z.((n)s)(s)z
+sum ::= \n.\m.\s.\z.((n)s)((m)s)z
+mult ::= \n.\m.((n)(sum)m)c0
+
+# The language is not lazy, you can't calculate anything, if you remove following comments
+# t1 ::= (t2)t1
+# t2 ::= (t1)t2
+
+# Main function
+
+# Increment example
+# main ::= (inc)(inc)c1
+
+# Operations example
+# main ::= ((mult)((sum)c2)c1)c2
+
+# Recursion example f -> f
+# main ::= (\x.(x)x)\x.(x)x
+
+# Input example
+# main ::= ((mult)read)read
+
