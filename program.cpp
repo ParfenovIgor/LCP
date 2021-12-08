@@ -130,7 +130,7 @@ void remove_name_collisions(string &s,int &cnt){
                     break;
                 }
             }
-            if(cur=="read"){
+            if(cur=="read" || cur=="write"){
                 t+=cur;
             }
             else if(pos==-1){
@@ -205,6 +205,14 @@ void resolve_recursive_definition(map <string,string> functions,string &fun){
     }
 }
 
+bool equivalent_lambda_expressions(string a,string b){
+    int cnt=0;
+    remove_name_collisions(a,cnt);
+    cnt=0;
+    remove_name_collisions(b,cnt);
+    return (a==b);
+}
+
 bool apply_reduction(string &s,map <string,string> &functions,int &cnt){
     int n=(int)s.size();
     vector < vector <bool> > V,L;
@@ -249,9 +257,19 @@ bool apply_reduction(string &s,map <string,string> &functions,int &cnt){
 
     string application=s.substr(last+1,last_application-last);
     if(application=="read"){
-        cin>>application;
+        getline(cin,application);
         resolve_recursive_definition(functions,application);
         remove_name_collisions(application,cnt);
+    }
+    else if(application=="write"){
+        string output=s.substr(dot+1,last-dot-1);
+        for(auto i : functions){
+            if(equivalent_lambda_expressions(i.second,output)){
+                output=i.first;
+                break;
+            }
+        }
+        cout<<output<<endl;
     }
 
     for(int i=dot+1;i<last;i++){
@@ -330,15 +348,7 @@ void remove_spaces_lambda_expression(string &s){
     s=t;
 }
 
-bool equivalent_lambda_expressions(string a,string b){
-    int cnt=0;
-    remove_name_collisions(a,cnt);
-    cnt=0;
-    remove_name_collisions(b,cnt);
-    return (a==b);
-}
-
-void solve_lambda_expression(map <string,string> functions){
+void solve_lambda_expression(map <string,string> functions,string &program){
     if(!functions.count("main")){
         throw "Error: could not find function main";
     }
@@ -347,7 +357,7 @@ void solve_lambda_expression(map <string,string> functions){
         resolve_recursive_definition(functions,fun.second);
     }
 
-    string program=functions["main"];
+    program=functions["main"];
 
     int cnt=0;
     remove_name_collisions(program,cnt);
@@ -375,41 +385,101 @@ void solve_lambda_expression(map <string,string> functions){
     if(Warning_Free_Variable)
         cerr<<"Warning: free variable detected"<<endl;
     Warning_Free_Variable=false;
-
-    cout<<program<<endl;
 }
 
-void load_file(ifstream &fin,map <string,string> &functions){
-    string cur;
-    while(getline(fin,cur)){
-        if(cur.empty() || cur[0]=='#') continue;
-        int n=(int)cur.size();
-        int pos=-1;
-        for(int i=0;i+2<n;i++){
-            if(cur.substr(i,3)=="::="){
-                pos=i;
+void load_files(string path,map <string,string> &functions){
+    set <string> read_files;
+    queue <string> q;
+
+    read_files.insert(path);
+    q.push(path);
+
+    while(!q.empty()){
+        string filename=q.front();
+        q.pop();
+
+        ifstream fin(filename);
+        if(!fin){
+            throw "Error: could not open file";
+        }
+
+        string cur;
+        while(getline(fin,cur)){
+            if(cur.empty() || cur[0]=='#') continue;
+            int n=(int)cur.size();
+
+            bool load=false;
+
+            for(int i=0;i<n;i++){
+                if(cur[i]==' '){
+                    continue;
+                }
+                else if(cur[i]=='!'){
+                    load=true;
+                    cur=cur.substr(i+1);
+                    break;
+                }
+                else{
+                    break;
+                }
             }
+
+            if(load){
+                n=(int)cur.size();
+                int first=-1,last=-1;
+                for(int i=0;i<n;i++){
+                    if(cur[i]!=' '){
+                        first=i;
+                        break;
+                    }
+                }
+                for(int i=n-1;i>=0;i--){
+                    if(cur[i]!=' '){
+                        last=i;
+                        break;
+                    }
+                }
+                string filename;
+                if(cur[first]=='"' && cur[last]=='"')
+                    filename=cur.substr(first+1,last-first-1);
+                else
+                    filename=cur.substr(first,last-first+1);
+                if(read_files.find(filename)==read_files.end()){
+                    q.push(filename);
+                    read_files.insert(filename);
+                }
+                continue;
+            }
+
+            int pos=-1;
+            for(int i=0;i+2<n;i++){
+                if(cur.substr(i,3)=="::="){
+                    pos=i;
+                }
+            }
+            if(pos==-1){
+                throw "Error: incorrect declaration";
+            }
+            string decl=cur.substr(0,pos);
+            remove_spaces_declaration(decl);
+            string lamb_exp=cur.substr(pos+3);
+            remove_spaces_lambda_expression(lamb_exp);
+            if(functions.count(decl)){
+                cerr<<"Warning: function "+decl+" redeclaration"<<endl;
+            }
+            functions[decl]=lamb_exp;
         }
-        if(pos==-1){
-            throw "Error: incorrect declaration";
-        }
-        string decl=cur.substr(0,pos);
-        remove_spaces_declaration(decl);
-        string lamb_exp=cur.substr(pos+3);
-        remove_spaces_lambda_expression(lamb_exp);
-        if(functions.count(decl)){
-            cerr<<"Warning: function "+decl+" redeclaration"<<endl;
-        }
-        functions[decl]=lamb_exp;
     }
 }
 
-void process_code(ifstream &fin){
+void process_code(string path){
     map <string,string> functions;
 
-    load_file(fin,functions);
+    load_files(path,functions);
 
-    solve_lambda_expression(functions);
+    string program;
+
+    solve_lambda_expression(functions,program);
 }
 
 bool check_show_reductions(string &cur){
@@ -449,25 +519,17 @@ bool check_show_reductions(string &cur){
 }
 
 void process_interaction(){
-    cout<<"LCP Version 1.0"<<endl;
+    cout<<"LCP Version 1.1"<<endl;
     cout<<"Lambda calculus programming"<<endl;
     cout<<"By Igor Parfenov"<<endl;
 
     map <string,string> functions;
     string cur;
 
-    bool last_empty=false;
-
     while(cin){
-        if(!last_empty)
-            cout<<">> ";
+        cout<<">> ";
         getline(cin,cur);
 
-        if(cur.empty()){
-            last_empty=true;
-            continue;
-        }
-        last_empty=false;
         if(cur.empty() || cur[0]=='#') continue;
         int n=(int)cur.size();
 
@@ -500,7 +562,9 @@ void process_interaction(){
             if(query){
                 remove_spaces_lambda_expression(cur);
                 functions["main"]=cur;
-                solve_lambda_expression(functions);
+                string program;
+                solve_lambda_expression(functions,program);
+                cout<<">> "<<program<<endl;
                 functions.erase("main");
                 continue;
             }
@@ -525,11 +589,7 @@ void process_interaction(){
                     filename=cur.substr(first+1,last-first-1);
                 else
                     filename=cur.substr(first,last-first+1);
-                ifstream fin(filename);
-                if(!fin){
-                    throw "Error: could not open source code";
-                }
-                load_file(fin,functions);
+                load_files(filename,functions);
                 if(functions.count("main")){
                     cerr<<"Warning: it is not allowed to use main function"<<endl;
                 }
@@ -550,9 +610,6 @@ void process_interaction(){
             remove_spaces_declaration(decl);
             string lamb_exp=cur.substr(pos+3);
             remove_spaces_lambda_expression(lamb_exp);
-            if(decl=="main"){
-                cerr<<"Warning: it is not allowed to use main function"<<endl;
-            }
             functions[decl]=lamb_exp;
         }
         catch(const char *error){
@@ -570,11 +627,8 @@ int main(int argc,char *argv[]){
             Show_Reductions=true;
         }
         if(argc>=2){
-            ifstream fin(argv[1]);
-            if(!fin){
-                throw "Error: could not open source code";
-            }
-            process_code(fin);
+            string path(argv[1]);
+            process_code(path);
         }
     }
     catch(const char *error){

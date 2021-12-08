@@ -1,9 +1,12 @@
 # /\ ::= V | (/\)/\ | \V./\
-# V ::= [A-za-z0-9]+
+# V ::= [A-Za-z0-9]+
 
-# Some binary logic functions
-tru ::= \t.\f.t
-fls ::= \t.\f.f
+# Import definitions from file
+! example_import.lcp
+
+# Binary logic functions
+true ::= \t.\f.t
+false ::= \t.\f.f
 test ::= \l.\m.\n.((l)m)n
 
 # Church numerals
@@ -18,7 +21,7 @@ c6 ::= \s.\z.(s)(s)(s)(s)(s)(s)z
 # Operations on church numerals
 inc ::= \n.\s.\z.((n)s)(s)z
 sum ::= \n.\m.\s.\z.((n)s)((m)s)z
-mult ::= \n.\m.((n)(sum)m)c0
+mlt ::= \n.\m.((n)(sum)m)c0
 
 # The language is not lazy, you can't calculate anything, if you remove following comments
 # t1 ::= (t2)t1
@@ -30,11 +33,19 @@ mult ::= \n.\m.((n)(sum)m)c0
 # main ::= (inc)(inc)c1
 
 # Operations example
-# main ::= ((mult)((sum)c2)c1)c2
+# main ::= ((mlt)((sum)c2)c1)c2
 
 # Recursion example f -> f
 # main ::= (\x.(x)x)\x.(x)x
 
-# Input example
-# main ::= ((mult)read)read
+# Importing example
+# main ::= (double)c2
 
+# Input example
+# main ::= ((mlt)read)read
+
+# Output example
+# main ::= (\x.c3)write
+
+# A + B example
+# main ::= (\x.((sum)read)read)write

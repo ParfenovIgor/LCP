@@ -1,0 +1,5 @@
+# This will not cause infinite importing
+! example.lcp
+
+# This definition is visible in file example.lcp
+double ::= \x.((mlt)c2)x
