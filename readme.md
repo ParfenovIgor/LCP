@@ -21,7 +21,7 @@ The definitions mush be written in following format:
 Example:
 **inc ::= \n.\s.\z.((n)s)(s)z**
 
-The program renames variables in order to remove name collisions. Therefore, the result can look weird.
+The program renames variables in order to remove name collisions. Therefore, the result may look weird.
 
 You can use functions in definitions of other functions (even same, if the resulting function can be resolved).
 
@@ -30,7 +30,7 @@ You can use functions in definitions of other functions (even same, if the resul
 Enter the definition in the same form, as it was written above.
 It there was already definition with this name, it will be overwritten.
 
-Enter **!** sign and file name, to open definitions from this file. You can't use in this file function main, otherwise it will be overwritten next query.
+Enter **!** sign and file name, to open definitions from this file. You can't use in this file function main, otherwise it will be overwritten by next query.
 
 Enter **?** sign and lambda term, the program will apply reductions to it and show the result.
 
@@ -48,7 +48,9 @@ Enter **!** sign and file name to import definitions from this file. You can do 
 
 ## Stdin
 
-You can apply **read** to expression to call input. The input will be applied to appropriate argument. Example:
+You can apply **read** to expression to call input. The input will be applied to appropriate argument.
+
+Example:
 **(inc)read**
 If you enter
 **\a.\b.b**
@@ -56,22 +58,28 @@ If you enter
 **\a.\b.(a)b**
 (you will not get exactly this expression, but they will be equivalent).
 
-You can enter functions by their name. Example:
+You can enter functions by their name.
+
+Example:
 **((\x.x)read)\a.\b.b**
 If you enter
-**read**
+**inc**
 , you will get as result
 **\a.\b.(a)b**
 (you will not get exactly expression term, but they will be equivalent).
 
 ## Stdout
 
-You can apply **write** to expression to call output. The **write** will be applied to appropriate argument, and then the result will be written. Example:
+You can apply **write** to expression to call output. The **write** will be applied to appropriate argument, and then the result will be written.
+
+Example:
 **(\x.\y.y)write**
 will write **\y.y**.
 (you will not get exactly this expression, but they will be equivalent).
 
-You can write functions by their name. Example:
+You can write functions by their name.
+
+Example:
 **(\x.inc)write**
 and
 **(\x.\n.\s.\z.((n)s)(s)z)write**
