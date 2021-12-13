@@ -13,6 +13,7 @@ Run program with path to file to execute it with corresponding source code. You 
 The following definition of lambda expression is used:
 
 **/\\ ::= V | (/\\)/\\ | \\V./\\**
+
 **V ::= [A-Za-z0-9]+**
 
 The definitions mush be written in following format:
