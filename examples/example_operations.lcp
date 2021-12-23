@@ -1,0 +1,5 @@
+# Calculate (* (+ C2 C1) C2) = (C2 + C1) * C2 = C6
+
+! prelude.lcp
+
+MAIN	::= ((MLT)((SUM)C2)C1)C2

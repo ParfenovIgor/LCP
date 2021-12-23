@@ -1,0 +1,12 @@
+# Logic functions
+
+TRU	::= \t.\f.t
+FLS	::= \t.\f.f
+NOT	::= \a.((a)FLS)TRU
+AND	::= \a.\b.((a)b)FLS
+OR	::= \a.\b.((a)TRU)b
+NAND	::= \a.\b.((a)(NOT)b)TRU
+NOR	::= \a.\b.((a)FLS)(NOT)b
+XOR	::= \a.\b.((a)(NOT)b)b
+IMP	::= \a.\b.((a)b)TRU
+EQU	::= \a.\b.((a)b)(NOT)b

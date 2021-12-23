@@ -1,0 +1,5 @@
+# Apply READ to read from stdin
+
+! prelude.lcp
+
+MAIN	::= ((MLT)READ)READ

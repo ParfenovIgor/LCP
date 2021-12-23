@@ -1,0 +1,7 @@
+# Calculate factorial of C4 in outermost reduction strategy with accumulator parameter
+
+! prelude.lcp
+
+HELPER	::= \f.\n.\m.(((ZERO)n)m)(((f)f)(DEC)n)((MLT)m)n
+FACT	::= \n.(((HELPER)HELPER)n)C1
+MAIN	::= (FACT)C4

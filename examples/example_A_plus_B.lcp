@@ -1,0 +1,5 @@
+# Read A and B from stdin and write their sum to stdout
+
+! prelude.lcp
+
+MAIN	::= (\x.((SUM)READ)READ)WRITE

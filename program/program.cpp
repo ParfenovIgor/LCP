@@ -1,13 +1,17 @@
 /// Author: Igor Parfenov
 
 #include <bits/stdc++.h>
-#include <windows.h>
 
 using namespace std;
 
-bool Show_Reductions=false;
-
 bool Warning_Free_Variable=false;
+bool Show_Reductions=false;
+bool Show_Variables_Number=false;
+enum Reduction_Strategy{
+    OUTERMOST,
+    INNERMOST
+};
+Reduction_Strategy Current_Reduction_Strategy=INNERMOST;
 
 bool is_var_char(char c){
     if((c>='A' && c<='Z') ||
@@ -18,10 +22,24 @@ bool is_var_char(char c){
         return false;
 }
 
-void process_lambda_term(string s,vector < vector <bool> > &V,vector < vector <bool> > &L){
+bool equal_case_insensitive(string s,string t){
+    if(s.size()!=t.size())
+        return false;
+    for(int i=0;i<(int)s.size();i++){
+        if(s[i]==t[i]) continue;
+        if(s[i]>='A' && s[i]<='Z' && t[i]==s[i]-'A'+'a')
+            continue;
+        if(s[i]>='a' && s[i]<='z' && t[i]==s[i]-'a'+'A')
+            continue;
+        return false;
+    }
+    return true;
+}
+
+bool is_lambda_term(string s){
     int n=(int)s.size();
-    V.assign(n,vector <bool> (n));
-    L.assign(n,vector <bool> (n));
+    vector < vector <bool> > V(n,vector <bool> (n));
+    vector < vector <bool> > L(n,vector <bool> (n));
 
     for(int len=1;len<=n;len++){
         for(int first=0;first+len-1<n;first++){
@@ -67,23 +85,12 @@ void process_lambda_term(string s,vector < vector <bool> > &V,vector < vector <b
             }
         }
     }
-}
-
-bool is_lambda_term(string s){
-    int n=(int)s.size();
-    vector < vector <bool> > V,L;
-    process_lambda_term(s,V,L);
 
     return L[0][n-1];
 }
 
 void remove_name_collisions(string &s,int &cnt){
     int n=(int)s.size();
-    vector < vector <bool> > V,L;
-    process_lambda_term(s,V,L);
-    if(!L[0][n-1]){
-        throw "Error: incorrect lambda expression";
-    }
 
     function <string(int)> itostr=[](int n){
         string res;
@@ -130,7 +137,7 @@ void remove_name_collisions(string &s,int &cnt){
                     break;
                 }
             }
-            if(cur=="read" || cur=="write"){
+            if(equal_case_insensitive(cur,"read") || equal_case_insensitive(cur,"write")){
                 t+=cur;
             }
             else if(pos==-1){
@@ -168,7 +175,7 @@ void remove_name_collisions(string &s,int &cnt){
     s=t;
 }
 
-void resolve_recursive_definition(map <string,string> functions,string &fun){
+void unwrap_recursive_definition(map <string,string> functions,string &fun){
     const int MAX_DEPTH=1000;
     const int MAX_LENGTH=1000000;
     int depth=0;
@@ -178,7 +185,7 @@ void resolve_recursive_definition(map <string,string> functions,string &fun){
         int n=(int)s.size();
         depth++;
         if(depth>MAX_DEPTH || n>MAX_LENGTH){
-            throw "Error: could not resolve recursive definition";
+            throw "Error: could not unwrap recursive definition";
         }
         for(int i=0;i<n;i++){
             if(is_var_char(s[i])){
@@ -215,24 +222,43 @@ bool equivalent_lambda_expressions(string a,string b){
 
 bool apply_reduction(string &s,map <string,string> &functions,int &cnt){
     int n=(int)s.size();
-    vector < vector <bool> > V,L;
-    process_lambda_term(s,V,L);
-    if(!L[0][n-1]){
-        throw "Error: incorrect lambda expression";
+
+    vector < pair <int,int> > redexes;
+    stack <int> open;
+    for(int i=0;i<n;i++){
+        if(s[i]=='('){
+            open.push(i);
+        }
+        if(s[i]==')'){
+            assert(!open.empty());
+            if(s[open.top()+1]=='\\')
+                redexes.push_back({open.top(),i});
+            open.pop();
+        }
     }
 
-    int first=-1,last=-1;
-    for(int r=2;r<n;r++){
-        for(int l=r-1;l>=0;l--){
-            if(first==-1 && s[l]=='(' && s[r]==')' && s[l+1]=='\\' && L[l+1][r-1]){
-                first=l;
-                last=r;
+    if(redexes.empty())
+        return false;
+
+    int Best=0;
+
+    if(Current_Reduction_Strategy==INNERMOST){
+        for(int i=1;i<(int)redexes.size();i++){
+            if(redexes[i].second<redexes[Best].second){
+                Best=i;
+            }
+        }
+    }
+    if(Current_Reduction_Strategy==OUTERMOST){
+        for(int i=1;i<(int)redexes.size();i++){
+            if(redexes[i].first<redexes[Best].first){
+                Best=i;
             }
         }
     }
 
-    if(first==-1)
-        return false;
+    int first=redexes[Best].first;
+    int last=redexes[Best].second;
 
     string t=s.substr(0,first);
     int dot=first+1;
@@ -256,12 +282,12 @@ bool apply_reduction(string &s,map <string,string> &functions,int &cnt){
     }
 
     string application=s.substr(last+1,last_application-last);
-    if(application=="read"){
+    if(equal_case_insensitive(application,"read")){
         getline(cin,application);
-        resolve_recursive_definition(functions,application);
+        unwrap_recursive_definition(functions,application);
         remove_name_collisions(application,cnt);
     }
-    else if(application=="write"){
+    else if(equal_case_insensitive(application,"write")){
         string output=s.substr(dot+1,last-dot-1);
         for(auto i : functions){
             if(equivalent_lambda_expressions(i.second,output)){
@@ -299,33 +325,30 @@ bool apply_reduction(string &s,map <string,string> &functions,int &cnt){
     return true;
 }
 
-void remove_spaces_declaration(string &s){
-    int n=(int)s.size();
+void crop_string(string &s){
     string t;
-
-    for(int i=0;i<n;i++){
-        if(s[i]!=' '){
+    for(int i=0;i<(int)s.size();i++){
+        if(s[i]!=' ' && s[i]!='\t'){
             t=s.substr(i);
             break;
         }
-        if(i==n-1){
-            throw "Error: empty declaration";
-        }
     }
-
-    while(t.back()==' ')
+    while(t.back()==' ' || t.back()=='\t')
         t.pop_back();
-
-    for(int i=0;i<(int)t.size();i++){
-        if(t[i]==' '){
-            throw "Error: several words in declaration";
-        }
-    }
-
     s=t;
 }
 
-void remove_spaces_lambda_expression(string &s){
+void check_declaration(string &s){
+    crop_string(s);
+
+    for(int i=0;i<(int)s.size();i++){
+        if(s[i]==' '){
+            throw "Error: several words in declaration";
+        }
+    }
+}
+
+void remove_spaces_in_lambda_expression(string &s){
     int n=(int)s.size();
     string t;
 
@@ -349,38 +372,54 @@ void remove_spaces_lambda_expression(string &s){
 }
 
 void solve_lambda_expression(map <string,string> functions,string &program){
-    if(!functions.count("main")){
-        throw "Error: could not find function main";
+    const int MAX_STEPS=1000000;
+    const int MAX_LENGTH=1000000;
+
+    if(!functions.count("MAIN")){
+        throw "Error: could not find function MAIN";
     }
 
     for(auto &fun : functions){
-        resolve_recursive_definition(functions,fun.second);
+        unwrap_recursive_definition(functions,fun.second);
     }
 
-    program=functions["main"];
+    program=functions["MAIN"];
 
-    int cnt=0;
+    int cnt=0,steps=0;
     remove_name_collisions(program,cnt);
     if(Show_Reductions)
-        cout<<program<<endl;
+        cout<<"* "<<program<<endl;
+    if(Show_Variables_Number)
+        cout<<"* "<<cnt<<endl;
     while(apply_reduction(program,functions,cnt)){
+        steps++;
+        if(steps>MAX_STEPS || (int)program.size()>MAX_LENGTH){
+            throw "Error: the expression seems to diverge";
+        }
+
         cnt=0;
         remove_name_collisions(program,cnt);
-        if(Show_Reductions){
-            cout<<program<<endl;
-            Sleep(1000);
-        }
+        if(Show_Reductions)
+            cout<<"* "<<program<<endl;
+        if(Show_Variables_Number)
+            cout<<"* "<<cnt<<endl;
     }
 
     cnt=0;
     remove_name_collisions(program,cnt);
 
+    string alt;
     for(auto i : functions){
         if(equivalent_lambda_expressions(i.second,program)){
-            program=i.first;
-            break;
+            alt+=i.first+" ";
         }
     }
+
+    if(!alt.empty())
+        program=alt;
+
+    if(Show_Reductions)
+        cout<<"* "<<program<<endl;
 
     if(Warning_Free_Variable)
         cerr<<"Warning: free variable detected"<<endl;
@@ -461,9 +500,12 @@ void load_files(string path,map <string,string> &functions){
                 throw "Error: incorrect declaration";
             }
             string decl=cur.substr(0,pos);
-            remove_spaces_declaration(decl);
+            check_declaration(decl);
             string lamb_exp=cur.substr(pos+3);
-            remove_spaces_lambda_expression(lamb_exp);
+            remove_spaces_in_lambda_expression(lamb_exp);
+            if(!is_lambda_term(lamb_exp)){
+                throw "Error: incorrect lambda expression";
+            }
             if(functions.count(decl)){
                 cerr<<"Warning: function "+decl+" redeclaration"<<endl;
             }
@@ -482,45 +524,47 @@ void process_code(string path){
     solve_lambda_expression(functions,program);
 }
 
-bool check_show_reductions(string &cur){
-    int n=(int)cur.size();
-
-    bool enable_show_reduction=true;
-    bool disable_show_reduction=true;
-    int n_plus=0,n_minus=0;
-    for(int i=0;i<n;i++){
-        if(cur[i]=='+')
-            n_plus++;
-        if(cur[i]=='-')
-            n_minus++;
-        if(cur[i]!='+' && cur[i]!='-' && cur[i]!=' '){
-            enable_show_reduction=false;
-            disable_show_reduction=false;
-        }
-    }
-    if(n_plus!=1)
-        enable_show_reduction=false;
-    if(n_minus!=1)
-        disable_show_reduction=false;
-
-    if(enable_show_reduction){
+bool update_parameters(string cur,bool show_output){
+    crop_string(cur);
+    if(cur=="+"){
         Show_Reductions=true;
-        cout<<"Show reductions enabled"<<endl;
+        Show_Variables_Number=false;
+        if(show_output)
+            cout<<"Show reductions enabled"<<endl;
         return true;
     }
-
-    if(disable_show_reduction){
+    if(cur=="^"){
         Show_Reductions=false;
-        cout<<"Show reductions disabled"<<endl;
+        Show_Variables_Number=true;
+        if(show_output)
+            cout<<"Show variables number enabled"<<endl;
         return true;
     }
-
+    if(cur=="-"){
+        Show_Reductions=false;
+        Show_Variables_Number=false;
+        if(show_output)
+            cout<<"Show reductions and variables number disabled"<<endl;
+        return true;
+    }
+    if(cur=="<"){
+        Current_Reduction_Strategy=INNERMOST;
+        if(show_output)
+            cout<<"Innermost reduction strategy enabled"<<endl;
+        return true;
+    }
+    if(cur==">"){
+        Current_Reduction_Strategy=OUTERMOST;
+        if(show_output)
+            cout<<"Outermost reduction strategy enabled"<<endl;
+        return true;
+    }
     return false;
 }
 
 void process_interaction(){
-    cout<<"LCP Version 1.1"<<endl;
-    cout<<"Lambda calculus programming"<<endl;
+    cout<<"LCP Version 2.0"<<endl;
+    cout<<"Lambda Calculus Programming"<<endl;
     cout<<"By Igor Parfenov"<<endl;
 
     map <string,string> functions;
@@ -537,7 +581,7 @@ void process_interaction(){
             bool query=false;
             bool load=false;
 
-            if(check_show_reductions(cur))
+            if(update_parameters(cur,true))
                 continue;
 
             for(int i=0;i<n;i++){
@@ -560,42 +604,29 @@ void process_interaction(){
             }
 
             if(query){
-                remove_spaces_lambda_expression(cur);
-                functions["main"]=cur;
+                remove_spaces_in_lambda_expression(cur);
+                functions["MAIN"]=cur;
                 string program;
                 solve_lambda_expression(functions,program);
                 cout<<">> "<<program<<endl;
-                functions.erase("main");
+                functions.erase("MAIN");
                 continue;
             }
 
             if(load){
-                n=(int)cur.size();
-                int first=-1,last=-1;
-                for(int i=0;i<n;i++){
-                    if(cur[i]!=' '){
-                        first=i;
-                        break;
-                    }
+                crop_string(cur);
+                string filename=cur;
+                if((int)cur.size()>=2 && cur[0]=='"' && cur.back()=='"'){
+                    filename=cur.substr(1,(int)cur.size()-2);
                 }
-                for(int i=n-1;i>=0;i--){
-                    if(cur[i]!=' '){
-                        last=i;
-                        break;
-                    }
-                }
-                string filename;
-                if(cur[first]=='"' && cur[last]=='"')
-                    filename=cur.substr(first+1,last-first-1);
-                else
-                    filename=cur.substr(first,last-first+1);
                 load_files(filename,functions);
-                if(functions.count("main")){
-                    cerr<<"Warning: it is not allowed to use main function"<<endl;
+                if(functions.count("MAIN")){
+                    cerr<<"Warning: it is not allowed to use MAIN function"<<endl;
                 }
                 cout<<"File successfully read"<<endl;
                 continue;
             }
+
 
             int pos=-1;
             for(int i=0;i+2<n;i++){
@@ -607,9 +638,15 @@ void process_interaction(){
                 throw "Error: incorrect command";
             }
             string decl=cur.substr(0,pos);
-            remove_spaces_declaration(decl);
+            check_declaration(decl);
+            if(decl=="MAIN"){
+                cerr<<"Warning: it is not allowed to use MAIN function"<<endl;
+            }
             string lamb_exp=cur.substr(pos+3);
-            remove_spaces_lambda_expression(lamb_exp);
+            remove_spaces_in_lambda_expression(lamb_exp);
+            if(!is_lambda_term(lamb_exp)){
+                throw "Error: incorrect lambda expression";
+            }
             functions[decl]=lamb_exp;
         }
         catch(const char *error){
@@ -623,8 +660,9 @@ int main(int argc,char *argv[]){
         if(argc==1){
             process_interaction();
         }
-        if(argc>=3 && strcmp(argv[2],"+")==0){
-            Show_Reductions=true;
+        for(int i=1;i<argc;i++){
+            string cur(argv[i]);
+            update_parameters(cur,false);
         }
         if(argc>=2){
             string path(argv[1]);

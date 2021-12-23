@@ -1,0 +1,7 @@
+# Pairs
+
+PAIR	::= \a.\b.\s.((s)a)b
+FST	::= TRU
+SND	::= FLS
+ZZ	::= ((PAIR)C0)C0
+SS	::= \a.((PAIR)(a)SND)((SUM)C1)(a)SND

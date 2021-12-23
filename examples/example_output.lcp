@@ -1,0 +1,5 @@
+# Apply WRITE to write to stdout
+
+! prelude.lcp
+
+MAIN	::= (\x.C3)WRITE

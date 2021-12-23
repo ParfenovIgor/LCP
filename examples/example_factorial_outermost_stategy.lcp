@@ -1,0 +1,7 @@
+# Calculate factorial of C4 in outermost reduction strategy
+
+! prelude.lcp
+
+HELPER	::= \f.\n.(((ZERO)n)C1)((MLT)n)((f)f)(DEC)n
+FACT	::= \n.((HELPER)HELPER)n
+MAIN	::= (FACT)C4

@@ -1,0 +1,6 @@
+# Usage the locally defined function, which multiplies argument by C2
+
+! prelude.lcp
+
+DOUBLE	::= \x.((MLT)C2)x
+MAIN	::= (DOUBLE)C3

@@ -1,0 +1,6 @@
+# Calculate factorial of C4 in innermost reduction strategy with accumulator parameter
+
+! prelude.lcp
+
+FACT	::= \n.\m.\f.(((ZERO)n)m)(((f)(DEC)n)((MLT)m)n)f
+MAIN	::= (((FACT)C4)C1)FACT

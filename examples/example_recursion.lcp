@@ -1,0 +1,3 @@
+# Reduction does not change expression: f -> f
+
+MAIN	::= (\x.(x)x)\x.(x)x

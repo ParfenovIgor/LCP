@@ -1,0 +1,10 @@
+# Operations on church numerals
+
+! prelude_pairs.lcp
+
+ZERO	::= \n.((n)\x.FLS)TRU
+INC	::= \n.\s.\z.((n)s)(s)z
+DEC	::= \n.(((n)SS)ZZ)FST
+SUM	::= \n.\m.\s.\z.((n)s)((m)s)z
+DIF	::= \a.\b.((b)DEC)a
+MLT	::= \n.\m.((n)(SUM)m)C0

@@ -1,0 +1,9 @@
+# This file imports set of default functions
+
+# /\ ::= V | (/\)/\ | \V./\
+# V  ::= [A-Za-z0-9]+
+
+! prelude_logic.lcp
+! prelude_pairs.lcp
+! prelude_numerals.lcp
+! prelude_operations.lcp
