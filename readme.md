@@ -53,6 +53,8 @@ The *definitions* must be written in following format:
 Example:
 `INC ::= \n.\s.\z.((n)s)(s)z`
 
+The *definitions* and *lambda expressions* are ==case sensitive==.
+
 The *definitions* should be written in uppercase, and *variables* in lowercase, but it is not obligatory.
 
 The program renames variables in order to remove name collisions. Therefore, the result may look weird.
