@@ -15,17 +15,17 @@
 ## Changes from Previous Version
 
 * Allow **outermost** reduction strategy in addition to **innermost**
-* Faster **reductions** (lower degree of polynom of complexity)
+* Faster **reductions** (lower degree of polynomial of complexity)
 * More flexible Settings
 * More complex `prelude.lcp` library
     * Modules
     * More Logic Functions
-    * Decrement and Substraction
+    * Decrement and Subtraction
 * Examples on recursive `factorial` definitions for both reduction strategies
 
 ## Program
 
-Program allows to use **innermost** and **outermost** reductions strategies.
+Program allows using **innermost** and **outermost** reductions strategies.
 
 Program supports both **interactive** and **source code** modes.
 
@@ -41,9 +41,9 @@ The following definition of **lambda expression** is used:
 
 `V ::= [A-Za-z0-9]+`
 
-Program allows to use **innermost** and **outermost** reductions strategies.
+Program allows using **innermost** and **outermost** reductions strategies.
 
-By default the **innermost** reduction strategy is enabled.
+By default, the **innermost** reduction strategy is enabled.
 
 **Innermost** reduction strategy applies the *redex* with the **most left ending**.
 
@@ -57,7 +57,7 @@ Example:
 
 `INC ::= \n.\s.\z.((n)s)(s)z`
 
-The *definitions* and *lambda expressions* are **case sensitive**.
+The *definitions* and *lambda expressions* are **case-sensitive**.
 
 The *definitions* should be written in uppercase, and *variables* in lowercase, but it is not obligatory.
 
@@ -75,7 +75,7 @@ Enter `^` sign to enable showing number of *variables* after every *reduction*.
 
 Enter `-` sign to disable showing *reductions* and number of *variables*.
 
-Enter '<' sign to switch to **innermost** reduction strategy. By default this strategy is used.
+Enter '<' sign to switch to **innermost** reduction strategy. By default, this strategy is used.
 
 Enter '>' sign to switch to **outermost** reduction strategy.
 
@@ -85,9 +85,9 @@ Enter the *definition* in the same form, as it was written above.
 
 It there was already *definition* with this name, it will be overwritten.
 
-Enter `!` sign and file name, to open definitions from this *file*. You can't use from this *file* function `MAIN`, since it will be overwritten by next *query*.
+Enter `!` sign and file name, to open definitions from this *file*. You can't use from this *file* function `MAIN`, since it will be overwritten by the next *query*.
 
-Enter `?` sign and *lambda expression*, the program will apply reductions to it and show the result. If there are defined *functions*, which are equavalent to the result, they will be showed.
+Enter `?` sign and *lambda expression*, the program will apply reductions to it and show the result. If there are defined *functions*, which are equivalent to the result, they will be showed.
 
 Enter any *flag* to apply it.
 
@@ -99,11 +99,11 @@ There has to be `MAIN` function in program.
 
 Only one *function* with given name has to be defined.
 
-Enter `!` sign and file name to import *definitions* from this file. You can do recursive importing. The **importer** howerer, will import only once every file by single command.
+Enter `!` sign and file name to import *definitions* from this file. You can do recursive importing. The **importer**, however, will import only once every file by single command.
 
 ## Stdin
 
-You can apply `READ` to *expression* to call *input*. The `READ` is **case insensitive**. The *input* will be applied to appropriate argument.
+You can apply `READ` to *expression* to call *input*. The `READ` is **case-insensitive**. The *input* will be applied to the appropriate argument.
 
 Example:
 `(INC)READ`
@@ -125,7 +125,7 @@ If you enter
 
 ## Stdout
 
-You can apply `WRITE` to *expression* to call *output*. The `WRITE` is **case insensitive**. The `WRITE` will be applied to appropriate argument, and then the result will be written.
+You can apply `WRITE` to *expression* to call *output*. The `WRITE` is **case-insensitive**. The `WRITE` will be applied to the appropriate argument, and then the result will be written.
 
 Example:
 `(\x.\y.y)WRITE`
