@@ -42,15 +42,19 @@ The following definition of **lambda expression** is used:
 `V ::= [A-Za-z0-9]+`
 
 Program allows to use **innermost** and **outermost** reductions strategies.
+
 By default the **innermost** reduction strategy is enabled.
 
 **Innermost** reduction strategy applies the *redex* with the **most left ending**.
+
 **Outermost** reduction strategy applies the *redex* with the **most left beginning**.
 
 The *definitions* must be written in following format:
+
 `name ::= function`
 
 Example:
+
 `INC ::= \n.\s.\z.((n)s)(s)z`
 
 The *definitions* and *lambda expressions* are **case sensitive**.
@@ -78,6 +82,7 @@ Enter '>' sign to switch to **outermost** reduction strategy.
 ## Interactive Mode
 
 Enter the *definition* in the same form, as it was written above.
+
 It there was already *definition* with this name, it will be overwritten.
 
 Enter `!` sign and file name, to open definitions from this *file*. You can't use from this *file* function `MAIN`, since it will be overwritten by next *query*.
@@ -89,7 +94,9 @@ Enter any *flag* to apply it.
 ## Source Code Mode
 
 Enter the *definition* in the same form, as it was written above.
+
 There has to be `MAIN` function in program.
+
 Only one *function* with given name has to be defined.
 
 Enter `!` sign and file name to import *definitions* from this file. You can do recursive importing. The **importer** howerer, will import only once every file by single command.
