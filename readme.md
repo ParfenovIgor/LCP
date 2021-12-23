@@ -44,8 +44,8 @@ The following definition of **lambda expression** is used:
 Program allows to use **innermost** and **outermost** reductions strategies.
 By default the **innermost** reduction strategy is enabled.
 
-**Innermost** reduction strategy applies the **redex** with the ==most left ending==.
-**Outermost** reduction strategy applies the **redex** with the ==most left beginning==.
+**Innermost** reduction strategy applies the *redex* with the **most left ending**.
+**Outermost** reduction strategy applies the *redex* with the **most left beginning**.
 
 The *definitions* must be written in following format:
 `name ::= function`
@@ -53,7 +53,7 @@ The *definitions* must be written in following format:
 Example:
 `INC ::= \n.\s.\z.((n)s)(s)z`
 
-The *definitions* and *lambda expressions* are ==case sensitive==.
+The *definitions* and *lambda expressions* are **case sensitive**.
 
 The *definitions* should be written in uppercase, and *variables* in lowercase, but it is not obligatory.
 
