@@ -116,7 +116,7 @@ If you enter
 You can enter functions by their name.
 
 Example:
-`((\x.x)read)\a.\b.b`
+`((\x.x)READ)\a.\b.b`
 If you enter
 `INC`
 , providing, that it was defined, you will get as result
@@ -125,7 +125,7 @@ If you enter
 
 ## Stdout
 
-You can apply `WRITE` to *expression* to call *output*. The `WRITE` is **case-insensitive**. The `WRITE` will be applied to the appropriate argument, and then the result will be written.
+You can apply `WRITE` to *expression* to call *output*. The `WRITE` is **case-insensitive**. The `WRITE`, in same case, as it was written, will be applied to the appropriate argument, and then the result will be printed.
 
 Example:
 `(\x.\y.y)WRITE`
