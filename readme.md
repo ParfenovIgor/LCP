@@ -37,7 +37,7 @@ Run program with path to file to execute it with corresponding **source code**. 
 
 The following definition of **lambda expression** is used:
 
-`/\\ ::= V | (/\\)/\\ | \\V./\\`
+`/\ ::= V | (/\)/\ | \V./\`
 
 `V ::= [A-Za-z0-9]+`
 
