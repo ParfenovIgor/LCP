@@ -75,9 +75,9 @@ Enter `^` sign to enable showing number of *variables* after every *reduction*.
 
 Enter `-` sign to disable showing *reductions* and number of *variables*.
 
-Enter '<' sign to switch to **innermost** reduction strategy. By default, this strategy is used.
+Enter `<` sign to switch to **innermost** reduction strategy. By default, this strategy is used.
 
-Enter '>' sign to switch to **outermost** reduction strategy.
+Enter `>` sign to switch to **outermost** reduction strategy.
 
 ## Interactive Mode
 
